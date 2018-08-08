@@ -11,20 +11,20 @@ function reporting(req, res) {
     params.start = new Date(req.query['start']) || new Date(0);
     params.end = new Date(req.query['end']) || Date.now();
     params.business_id = req.query['business_id'] || null;
-    return handleReporting(params, res);
+    return handleReporting(params, req, res);
 }
 
-function handleReporting(params, res) {
+function handleReporting(params, req, res) {
 
     switch(params.report) {
     case 'LCP':
-        LCP(params, res);
+        LCP(params, req, res);
         break;
     case 'FCP':
-        FCP(params, res);
+        FCP(params, req, res);
         break;
     case 'EGS':
-        EGS(params, res);
+        EGS(params, req, res);
         break;
     default:
         res.status(400);
