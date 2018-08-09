@@ -1,4 +1,7 @@
+// HELPER FUNCTIONS FOR TIME MANIPULATION
 
+// add a given amount of time to a date
+// and return a new date
 function addTime(date, interval) {
 
     let newDate = new Date(date);
@@ -21,6 +24,7 @@ function addTime(date, interval) {
     }
 }
 
+// find the difference in hours between two dates
 function diffHours(first, second) {
     return Math.abs(first - second) / 36e5;
 }

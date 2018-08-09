@@ -2,6 +2,9 @@ const LCP = require('./reports/LCP');
 const FCP = require('./reports/FCP');
 const EGS = require('./reports/EGS');
 
+// Handle the request, parse the parameters,
+// and delegate reporting to one of the reporter functions.
+// Kind of like a controller
 function reporting(req, res) {
     let params = {};
 
@@ -20,27 +23,23 @@ function reporting(req, res) {
         res.status(400);
         res.send('Must include all query parameters for a valid search');
     } else {
-        handleReporting(params, req, res);
+        switch(params.report) {
+        case 'LCP':
+            LCP(params, res);
+            break;
+        case 'FCP':
+            FCP(params, res);
+            break;
+        case 'EGS':
+            EGS(params, res);
+            break;
+        default:
+            res.status(400);
+            res.send('Report type not found');
+            break;
+        }        
     }
 }
 
-function handleReporting(params, req, res) {
-
-    switch(params.report) {
-    case 'LCP':
-        LCP(params, res);
-        break;
-    case 'FCP':
-        FCP(params, res);
-        break;
-    case 'EGS':
-        EGS(params, res);
-        break;
-    default:
-        res.status(400);
-        res.send('Report type not found');
-        break;
-    }
-}
 
 module.exports = reporting;

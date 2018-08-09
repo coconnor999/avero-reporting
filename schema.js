@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const businessSchema = new mongoose.Schema({
     id: {
         type: String,

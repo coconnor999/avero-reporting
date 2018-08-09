@@ -1,18 +1,14 @@
 const get = require('./get');
 const helper = require('./helper');
 const Schema = require('./../schema.js');
-const Business = Schema.Business;
-const MenuItem = Schema.MenuItem;
 const Check = Schema.Check;
-const Employee = Schema.Employee;
 const LaborEntry = Schema.LaborEntry;
 const OrderedItem = Schema.OrderedItem;
-const Query = Schema.Query;
 
-
-
+// LABOR COST PERCENTAGE
 async function LCP(params, res) {
 
+    // load necessary documents into local database
     await get.orderedItems(params.business_id);
     await get.laborEntries(params.business_id);
     await get.checks(params.business_id);
@@ -26,8 +22,11 @@ async function LCP(params, res) {
     let curr_start = params.start;
     let curr_end = helper.addTime(curr_start, params.timeInterval);
 
-        
+    // loop over each time interval
     while(curr_end <= params.end) {
+
+        // get all labor entries that overlap the current
+        // time interval
         const laborEntries = await LaborEntry.find(
             {
                 business_id: params.business_id,
@@ -42,7 +41,7 @@ async function LCP(params, res) {
             });
 
 
-        
+        // Find all the checks in the time interval
         const checks = await Check.find(
             {
                 business_id: params.business_id,
@@ -58,6 +57,7 @@ async function LCP(params, res) {
 
         let orderedItems = [];
 
+        // for every check, get associated orderedItems
         for(let i = 0; i < checks.length; ++i) {
             const check = checks[i];
             const items = await OrderedItem.find(
@@ -77,6 +77,8 @@ async function LCP(params, res) {
             sales += item.price;
         });
 
+        // calculate labor cost by measuring clock time overlap with
+        // time interval and multiplying by pay_rate
         laborEntries.forEach(entry => {
             let clock_in = entry.clock_in < curr_start ? curr_start : entry.clock_in;
             let clock_out = entry.clock_out < curr_end ? entry.clock_out : curr_end;
@@ -91,8 +93,8 @@ async function LCP(params, res) {
             },
             value: (labor / sales) * 100
         });
-        console.log(curr_start);
 
+        // increment boundary timestamps
         curr_start = curr_end;
         curr_end = helper.addTime(curr_start, params.timeInterval);
     }

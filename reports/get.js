@@ -8,6 +8,8 @@ const LaborEntry = Schema.LaborEntry;
 const OrderedItem = Schema.OrderedItem;
 const Query = Schema.Query;
 
+// These should be environmental variables, but I kept them here
+// to make it easier to run the repo locally
 const host = 'secret-lake-26389.herokuapp.com';
 const auth = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MzM2NTEwNzUsImV4cCI6MTUzNjI0MzA3NX0.t3kaYtlrIjatbu-pMLr1pEaluR2Az5Hk9sl0ceyOK3w';
 
@@ -16,6 +18,9 @@ const opts = {
     headers: { Authorization: auth }
 };
 
+// Check the Query collection to see if a GET request
+// has already been made to the POS API for a given
+// model and business_id
 async function alreadyFetched(model, business_id) {
     return new Promise((resolve, reject) => {
         Query.find({
@@ -31,6 +36,9 @@ async function alreadyFetched(model, business_id) {
     });
 }
 
+// Fetch data from the POS API. This is done recursively
+// so that all the data is taken from a given request (increments
+// offset). 
 async function fetch(options, offset) {
     let opts = Object.assign({}, options);
     opts.path = `${opts.path}&offset=${offset}`;
@@ -43,15 +51,16 @@ async function fetch(options, offset) {
                 data += chunk;
             });
             
-            // The whole response has been received. Print out the result.
+            // The whole response has been received. Return the result
             resp.on('end', async () => {
                 data = JSON.parse(data);
                 let entries = data.data;
                 if(data.count > offset + 500) {
+                    // if we are not at the end of the data,
+                    // increment offset and make another request
                     const next = await fetch(options, offset + 500);
                     entries = entries.concat(next);
                 }
-                console.log(entries.length);
                 resolve(entries);
             });
             
@@ -60,6 +69,11 @@ async function fetch(options, offset) {
         });
     });
 }
+
+// These functions use the fetch function to GET
+// from different POS API routes and store the data
+// locally
+
 
 async function businesses() {
     if(!(await alreadyFetched("Business", null))) {

@@ -1,16 +1,15 @@
 const get = require('./get');
 const helper = require('./helper');
 const Schema = require('./../schema.js');
-const Business = Schema.Business;
-const MenuItem = Schema.MenuItem;
 const Check = Schema.Check;
-const Employee = Schema.Employee;
 const LaborEntry = Schema.LaborEntry;
 const OrderedItem = Schema.OrderedItem;
-const Query = Schema.Query;
 
+// FOOD COST PERCENTAGE
 async function FCP(params, res) {
 
+    // ensure that the necessary documents are
+    // loaded in the local database
     await get.orderedItems(params.business_id);
     await get.checks(params.business_id);
 
@@ -23,8 +22,10 @@ async function FCP(params, res) {
     let curr_start = params.start;
     let curr_end = helper.addTime(curr_start, params.timeInterval);
 
-        
+    // loop over each time interval and calculate FCP
     while(curr_end <= params.end) {
+
+        // get all relevant checks
         const checks = await Check.find(
             {
                 business_id: params.business_id,
@@ -41,6 +42,7 @@ async function FCP(params, res) {
 
         let orderedItems = [];
 
+        // get all orderedItems associated with the checks
         for(let i = 0; i < checks.length; ++i) {
             const check = checks[i];
             const items = await OrderedItem.find(
@@ -68,6 +70,7 @@ async function FCP(params, res) {
             value: (cost / sales) * 100
         });
 
+        // increment the date boundaries
         curr_start = curr_end;
         curr_end = helper.addTime(curr_start, params.timeInterval);
     }

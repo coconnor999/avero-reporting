@@ -1,15 +1,15 @@
 const get = require('./get');
 const helper = require('./helper');
 const Schema = require('./../schema.js');
-const Business = Schema.Business;
-const MenuItem = Schema.MenuItem;
 const Check = Schema.Check;
-const Employee = Schema.Employee;
 const LaborEntry = Schema.LaborEntry;
 const OrderedItem = Schema.OrderedItem;
-const Query = Schema.Query;
 
+// EMPLOYEE GROSS SALES
 async function EGS(params, res) {
+
+    // ensure relevant documents are loaded in the
+    // local database
     await get.orderedItems(params.business_id);
     await get.laborEntries(params.business_id);
     await get.checks(params.business_id);
@@ -23,8 +23,11 @@ async function EGS(params, res) {
     let curr_start = params.start;
     let curr_end = helper.addTime(curr_start, params.timeInterval);
 
-        
+    // loop over time intervals and calculate EGS
     while(curr_end <= params.end) {
+
+        // find all labor entries that overlap with
+        // this time interval
         const laborEntries = await LaborEntry.find(
             {
                 business_id: params.business_id,
@@ -37,7 +40,9 @@ async function EGS(params, res) {
             (err, data) => {
                 return data;
             });
-        
+
+        // for every laborEntry, get all checks associated
+        // with the employee
         for(let i = 0; i < laborEntries.length; ++i) {
             const labor = laborEntries[i];
 
@@ -54,9 +59,10 @@ async function EGS(params, res) {
                 (err, data) => {
                     return data;
                 });
-            console.log(`Checks: ${checks.length}`);
+
             let orderedItems = [];
 
+            // for every check, find all the ordered items
             for(let j = 0; j < checks.length; ++j) {
                 const check = checks[j];
                 const items = await OrderedItem.find(
@@ -67,9 +73,10 @@ async function EGS(params, res) {
                     });
                 orderedItems = orderedItems.concat(items);
             };
-            console.log(`Items: ${orderedItems.length}`);
+
 
             let sales = 0;
+            
             orderedItems.forEach(item => {
                 sales += item.price;
             });
@@ -83,7 +90,8 @@ async function EGS(params, res) {
                 value: sales
             });
         }
-        
+
+        // increment timestamp boundaries
         curr_start = curr_end;
         curr_end = helper.addTime(curr_start, params.timeInterval);
     }
