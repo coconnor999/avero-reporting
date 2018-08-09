@@ -122,8 +122,7 @@ const laborEntrySchema = new mongoose.Schema({
 
 const querySchema = new mongoose.Schema({
     model: String,
-    business_id: { type: String, default: null },
-    employee_id: { type: String, default: null }
+    business_id: { type: String, default: null }
 });
 
 const Query = mongoose.model('Query', querySchema);

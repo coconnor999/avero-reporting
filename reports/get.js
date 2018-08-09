@@ -16,22 +16,12 @@ const opts = {
     headers: { Authorization: auth }
 };
 
-function addBusinessId(path, business_id) {
-    if(business_id) {
-        return path + `&business_id=${business_id}`;
-    } else {
-        return path;
-    }
-}
-
-async function alreadyFetched(model, business_id, employee_id) {
+async function alreadyFetched(model, business_id) {
     return new Promise((resolve, reject) => {
         Query.find({
-            $and: [
-                { model: model },
-                { $or: [{ business_id: business_id }, { business_id: null }] },
-                { $or: [{ employee_id: employee_id }, { employee_id: null }] }
-            ]}, function(err, data) {
+            model: model,
+            business_id: business_id
+            }, function(err, data) {
                 if(data.length > 0) {
                     resolve(true);
                 } else {
@@ -44,7 +34,7 @@ async function alreadyFetched(model, business_id, employee_id) {
 async function fetch(options, offset) {
     let opts = Object.assign({}, options);
     opts.path = `${opts.path}&offset=${offset}`;
-    console.log(opts.path);
+
     return new Promise((resolve, reject) => {
         https.get(opts, (resp) => {
             let data = '';
@@ -72,7 +62,7 @@ async function fetch(options, offset) {
 }
 
 async function businesses() {
-    if(!(await alreadyFetched("Business", null, null))) {
+    if(!(await alreadyFetched("Business", null))) {
         const options = Object.assign(opts, {
             path: '/businesses?limit=500'
         });
@@ -84,8 +74,8 @@ async function businesses() {
 }
 
 async function menuItems(business_id) {
-    if(!(await alreadyFetched("MenuItem", business_id, null))) {
-        const menuPath = addBusinessId('/menuItems?limit=500', business_id);
+    if(!(await alreadyFetched("MenuItem", business_id))) {
+        const menuPath = `/menuItems?limit=500&business_id=${business_id}`;
         const options = Object.assign(opts, {
             path: menuPath
         });
@@ -97,8 +87,8 @@ async function menuItems(business_id) {
 }
 
 async function checks(business_id) {
-    if(!(await alreadyFetched("Check", business_id, null))) {
-        const checkPath = addBusinessId('/checks?limit=500', business_id);
+    if(!(await alreadyFetched("Check", business_id))) {
+        const checkPath = `/checks?limit=500&business_id=${business_id}`;
         const options = Object.assign(opts, {
             path: checkPath
         });
@@ -110,8 +100,8 @@ async function checks(business_id) {
 }
 
 async function orderedItems(business_id) {
-    if(!(await alreadyFetched("OrderedItem", business_id, null))) {
-        const orderPath = addBusinessId('/orderedItems?limit=500', business_id);
+    if(!(await alreadyFetched("OrderedItem", business_id))) {
+        const orderPath = `/orderedItems?limit=500&business_id=${business_id}`;
         const options = Object.assign(opts, {
             path: orderPath
         });
@@ -123,8 +113,8 @@ async function orderedItems(business_id) {
 }
 
 async function employees(business_id) {
-    if(!(await alreadyFetched("Employee", business_id, null))) {
-        const employeePath = addBusinessId('/employees?limit=500', business_id);
+    if(!(await alreadyFetched("Employee", business_id))) {
+        const employeePath = `/employees?limit=500&business_id=${business_id}`;
         const options = Object.assign(opts, {
             path: employeePath
         });
@@ -135,18 +125,11 @@ async function employees(business_id) {
     }
 }
 
-async function laborEntries(business_id, employee_id) {
-    const fetched = await alreadyFetched("LaborEntry", business_id, employee_id);
+async function laborEntries(business_id) {
+    const fetched = await alreadyFetched("LaborEntry", business_id);
 
     if(!fetched) {
-        
-        let laborPath = '/laborEntries?limit=500';
-        if(business_id) {
-            laborPath += `&business_id=${business_id}`;
-        }
-        if(employee_id) {
-            laborPath += `&employee_id=${employee_id}`;
-        }
+        const laborPath = `/laborEntries?limit=500&business_id=${business_id}`;
         const options = Object.assign(opts, {
             path: laborPath
         });
@@ -155,8 +138,7 @@ async function laborEntries(business_id, employee_id) {
         await LaborEntry.insertMany(data);
         await Query.create({
             model: "LaborEntry",
-            business_id: business_id,
-            employee_id: employee_id
+            business_id: business_id
         });
     }
 }

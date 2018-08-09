@@ -11,7 +11,7 @@ const Query = Schema.Query;
 
 
 
-async function LCP(params, req, res) {
+async function LCP(params, res) {
 
     await get.orderedItems(params.business_id);
     await get.laborEntries(params.business_id);
@@ -40,6 +40,8 @@ async function LCP(params, req, res) {
             (err, data) => {
                 return data;
             });
+
+
         
         const checks = await Check.find(
             {
@@ -66,7 +68,8 @@ async function LCP(params, req, res) {
                 });
             orderedItems = orderedItems.concat(items);
         };
-        
+
+
         let labor = 0;
         let sales = 0;
 
@@ -86,8 +89,9 @@ async function LCP(params, req, res) {
                 start: curr_start,
                 end: curr_end
             },
-            value: (labor / sales) || 0
+            value: (labor / sales) * 100
         });
+        console.log(curr_start);
 
         curr_start = curr_end;
         curr_end = helper.addTime(curr_start, params.timeInterval);
