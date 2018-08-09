@@ -2,7 +2,11 @@ const mongoose = require('mongoose');
 
 
 const businessSchema = new mongoose.Schema({
-    id: String,
+    id: {
+        type: String,
+        unique: true,
+        index: true
+    },
     name: String,
     hours: [Number],
     updated_at: Date,
@@ -10,8 +14,15 @@ const businessSchema = new mongoose.Schema({
 });
 
 const menuItemSchema = new mongoose.Schema({
-    id: String,
-    business_id: String,
+    id: {
+        type: String,
+        unique: true,
+        index: true
+    },
+    business_id: {
+        type: String,
+        index: true
+    },
     name: String,
     cost: Number,
     price: Number,
@@ -20,9 +31,19 @@ const menuItemSchema = new mongoose.Schema({
 });
 
 const checkSchema = new mongoose.Schema({
-    id: String,
-    business_id: String,
-    employee_id: String,    
+    id: {
+        type: String,
+        unique: true,
+        index: true
+    },
+    business_id: {
+        type: String,
+        index: true
+    },
+    employee_id: {
+        type: String,
+        index: true
+    },
     name: String,
     closed: Boolean,
     closed_at: Date,
@@ -31,11 +52,27 @@ const checkSchema = new mongoose.Schema({
 });
 
 const orderedItemSchema = new mongoose.Schema({
-    id: String,
-    business_id: String,
-    employee_id: String,
-    check_id: String,
-    item_id: String,
+    id: {
+        type: String,
+        unique: true,
+        index: true
+    },
+    business_id: {
+        type: String,
+        index: true
+    },
+    employee_id: {
+        type: String,
+        index: true
+    },
+    check_id:  {
+        type: String,
+        index: true
+    },
+    item_id: {
+        type: String,
+        index: true
+    },
     name: String,
     cost: Number,
     price: Number,
@@ -45,8 +82,15 @@ const orderedItemSchema = new mongoose.Schema({
 });
 
 const employeeSchema = new mongoose.Schema({
-    id: String,
-    business_id: String,
+    id: {
+        type: String,
+        unique: true,
+        index: true
+    },
+    business_id: {
+        type: String,
+        index: true
+    },
     first_name: String,
     last_name: String,
     pay_rate: Number,
@@ -55,9 +99,19 @@ const employeeSchema = new mongoose.Schema({
 });
 
 const laborEntrySchema = new mongoose.Schema({
-    id: String,
-    business_id: String,
-    employee_id: String,
+    id: {
+        type: String,
+        unique: true,
+        index: true
+    },
+    business_id: {
+        type: String,
+        index: true
+    },
+    employee_id:  {
+        type: String,
+        index: true
+    },
     name: String,
     clock_in: Date,
     clock_out: Date,
