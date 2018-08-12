@@ -42,7 +42,7 @@ async function alreadyFetched(model, business_id) {
 async function fetch(options, offset) {
     let opts = Object.assign({}, options);
     opts.path = `${opts.path}&offset=${offset}`;
-
+    console.log(opts.path);
     return new Promise((resolve, reject) => {
         https.get(opts, (resp) => {
             let data = '';

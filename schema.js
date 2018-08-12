@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// mongodb shell: mongo ds215502.mlab.com:15502/avero -u malcolm -p Vargo65
 const businessSchema = new mongoose.Schema({
     id: {
         type: String,
@@ -45,7 +46,10 @@ const checkSchema = new mongoose.Schema({
     },
     name: String,
     closed: Boolean,
-    closed_at: Date,
+    closed_at: {
+        type: Date,
+        index: true
+    },
     updated_at: Date,
     created_at: Date
 });
@@ -112,8 +116,14 @@ const laborEntrySchema = new mongoose.Schema({
         index: true
     },
     name: String,
-    clock_in: Date,
-    clock_out: Date,
+    clock_in: {
+        type: Date,
+        index: true
+    },
+    clock_out: {
+        type: Date,
+        Index: true
+    },
     pay_rate: Number,
     updated_at: Date,
     created_at: Date
