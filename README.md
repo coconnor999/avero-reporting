@@ -33,7 +33,7 @@ LCP    | localhost:3000/reporting?business_id=f21c2579-b95e-4a5b-aead-a3cf9d60d4
 FCP    | localhost:3000/reporting?business_id=f21c2579-b95e-4a5b-aead-a3cf9d60d43b&report=FCP&timeInterval=hour&start=2018-07-28T14:00:00.000Z&end=2018-07-28T19:00:00.000Z
 
 ## Notes
-* I think the biggest problem here is that I am still using Strings for ids and foreign keys in the database. MongoDB does not like the id values from the POS API (not a 24-bit string). If this was fixed (maybe hashing the old ids before saving into the new database?), the performance would be better.
-* Along the same lines as the note above, this is *really* slow for large time intervals. A better database design would improve this.
+* I waffled on the best database schema for the data. I went with a normalized structure (document references), but I think a case could be made for an embedded structure. However, I think document duplication would be necessary given the various report types.
+* Related to the above point, this is *really* slow for large time intervals. A better database design might improve this?
 * Some testing would be good, but this was a big undertaking without tests.
 * There could be some code / file restructuring to make the data fetching from the POS API look cleaner.
