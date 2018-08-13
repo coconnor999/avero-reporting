@@ -1,17 +1,16 @@
 const get = require('./get');
+const find = require('./find');
 const helper = require('./helper');
-const Schema = require('./../schema.js');
-const Check = Schema.Check;
-const LaborEntry = Schema.LaborEntry;
-const OrderedItem = Schema.OrderedItem;
+
 
 // LABOR COST PERCENTAGE
 async function LCP(params, res) {
 
     // load necessary documents into local database
-    await get.orderedItems(params.business_id);
-    await get.laborEntries(params.business_id);
-    await get.checks(params.business_id);
+    await Promise.all([
+        get.orderedItems(params.business_id),
+        get.laborEntries(params.business_id),
+        get.checks(params.business_id)]);
 
     let report = {
         report: "LCP",
@@ -25,54 +24,20 @@ async function LCP(params, res) {
     // loop over each time interval
     while(curr_end <= params.end) {
 
-        // get all labor entries that overlap the current
-        // time interval
-        const laborEntries = await LaborEntry.find(
-            {
-                business_id: params.business_id,
-                $or: [
-                    { clock_in: { $lte: curr_start },
-                      clock_out: { $gt: curr_start } },
-                    { clock_in: { $lte: curr_end },
-                      clock_out: { $gt: curr_start } }
-                ]},
-            (err, data) => {
-                return data;
-            });
+        let laborEntries, orderedItems;
 
-
-        // Find all the checks in the time interval
-        const checks = await Check.find(
-            {
-                business_id: params.business_id,
-                closed: true,
-                closed_at: {
-                    $lte: curr_end,
-                    $gt: curr_start }
-            },
-            'id',
-            (err, data) => {
-                return data;
-            });
-
-        let orderedItems = [];
-
-        // for every check, get associated orderedItems
-        for(let i = 0; i < checks.length; ++i) {
-            const check = checks[i];
-            const items = await OrderedItem.find(
-                { check_id: check.id, voided: false },
-                'price',
-                (err, data) => {
-                    return data;
-                });
-            orderedItems = orderedItems.concat(items);
-        };
-
+        [laborEntries, orderedItems] = await Promise.all([
+            find.laborEntries(params.business_id,
+                              curr_start,
+                              curr_end),
+            find.orderedItems(params.business_id,
+                              curr_start,
+                              curr_end)]);
 
         let labor = 0;
         let sales = 0;
 
+        
         orderedItems.forEach(item => {
             sales += item.price;
         });
