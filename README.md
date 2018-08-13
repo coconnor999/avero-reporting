@@ -1,4 +1,5 @@
 # Avero Reporting API
+**Important: The most current work is going on at the async-refactor branch**
 An API built on top of a POS API for restaurant data that delivers the following reports:
 * Employee gross sales (EGS)
 * Labor Cost Percentage (LCP)
