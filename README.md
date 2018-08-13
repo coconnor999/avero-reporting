@@ -15,6 +15,8 @@ File      | Purpose
 *reports/LCP.js* | LCP reporting function
 *reports/EGS.js* | EGS reporting function
 *reports/FCP.js* | FCP reporting function
+*reports/get.js* | http get methods for the POS API
+*reports/find.js* | query methods for the local database
 *reports/helper.js* | Helper functions for time manipulation
 
 ## Running
