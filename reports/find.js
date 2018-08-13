@@ -54,7 +54,7 @@ async function orderedItems(business_id, start, end) {
         });
 
     const items = await orderedItemsHelper(checks);
-    console.log(items);
+
     return items;
 }
 
